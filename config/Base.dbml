@@ -1,0 +1,180 @@
+enum rol__t {
+	
+}
+
+enum "relacion _tutor_tribunal_t" {
+	tutor
+	tribunal
+}
+
+enum publico_objetivo_estudiantes_tutor_tribunal_documento_t {
+	estudiantes
+	tutor
+	tribunal
+	documento
+}
+
+enum prioridad_nivel1_nivel2_nivel3_t {
+	nivel1
+	nivel2
+	nivel3
+}
+
+enum "estado_en revision_rechazado_aprovado_t" {
+	"en revision"
+	rechazado
+	aprovado
+}
+
+enum estado_pendiente_revisando_aprobado_rechazado_observado_t {
+	pendiente
+	revisando
+	aprobado
+	rechazado
+	observado
+}
+
+enum "estado_abierto (Pendiente)_resuelto (Corregido)_t" {
+	"abierto (Pendiente)"
+	"resuelto (Corregido)"
+}
+
+Table usuarios [headercolor: #db9c14] {
+	id int [ pk, increment, not null ]
+	email varchar(255)
+	password varchar(255)
+	nombre varchar(255)
+	isActive boolean
+	rol rol__t
+}
+
+Table materia [headercolor: #4fa7ff] {
+	id int [ pk, increment, not null ]
+	nombre varchar(255)
+	semestre int
+	docente_acargo int
+	grupo varchar(255)
+}
+
+Table estudiantes_materia [headercolor: #4fa7ff] {
+	id int [ pk, increment, not null ]
+	materia int
+	estudiante int
+}
+
+Table tutor_tribunales [headercolor: #175e7a] {
+	id int [ pk, increment, not null ]
+	esudiante int
+	docente int
+	"relacion " "relacion _tutor_tribunal_t" [ default: 'tribunal' ]
+}
+
+Table cronograma [headercolor: #c0c700] {
+	id int [ pk, increment, not null ]
+	publico_objetivo publico_objetivo_estudiantes_tutor_tribunal_documento_t [ default: 'documento' ]
+	fecha_inicio date
+	fecha_final date
+	descripcion varchar(255)
+	version int
+	semestre int
+}
+
+Table notificaciones [headercolor: #175e7a] {
+	id int [ pk, increment, not null ]
+	usuario int
+	prioridad prioridad_nivel1_nivel2_nivel3_t [ default: 'nivel1' ]
+	mensaje varchar(255)
+	leida boolean
+
+	indexes {
+		() [ name: 'notificaciones_index_0' ]
+	}
+}
+
+Table "proyecto de grado" [headercolor: #2d5900] {
+	id int [ pk, increment, not null ]
+	titulo varchar(255)
+	estudiante_id int
+	estado "estado_en revision_rechazado_aprovado_t" [ default: 'en revision' ]
+	creado_el timestamp
+}
+
+Table versiones [headercolor: #2d5900] {
+	proyecto_id int
+	id int [ pk, increment, not null ]
+	"numero de version" int
+	url_pdf varchar(255)
+	estado estado_pendiente_revisando_aprobado_rechazado_observado_t [ default: 'pendiente' ]
+	creado_el timestamp
+}
+
+Table anotacion [headercolor: #2d5900] {
+	id int [ pk, increment, not null ]
+	autor_id int
+	"version _id" int
+	estado "estado_abierto (Pendiente)_resuelto (Corregido)_t"
+	accion_correctiva varchar(255)
+	nota_observacion int
+	nota_correccion int
+	accion_correctiva varchar(255)
+	creado_el timestamp
+	coregido_el timestamp
+}
+
+Table nota_comentario [headercolor: #2d5900] {
+	id int [ pk, increment, not null ]
+	pagina int
+	x float
+	y float
+	ancho float
+	alto float
+	comentario varchar(255)
+}
+
+Ref fk_usuarios_id_Materia {
+	usuarios.id < materia.docente_acargo [ delete: no action, update: no action ]
+}
+
+Ref fk_materia_id_estudiantes_materia {
+	materia.id < estudiantes_materia.materia [ delete: no action, update: no action ]
+}
+
+Ref fk_usuarios_id_estudiantes_materia {
+	usuarios.id < estudiantes_materia.estudiante [ delete: no action, update: no action ]
+}
+
+Ref fk_usuarios_id_tutor_tribunales {
+	usuarios.id < tutor_tribunales.esudiante [ delete: no action, update: no action ]
+}
+
+Ref fk_usuarios_id_tutor_tribunales {
+	usuarios.id < tutor_tribunales.docente [ delete: no action, update: no action ]
+}
+
+Ref fk_usuarios_id_notificaciones {
+	usuarios.id < notificaciones.usuario [ delete: no action, update: no action ]
+}
+
+Ref "fk_usuarios_id_proyecto de grado" {
+	usuarios.id - "proyecto de grado".estudiante_id [ delete: no action, update: no action ]
+}
+
+Ref "fk_versiones_proyecto_id_proyecto de grado" {
+	versiones.proyecto_id > "proyecto de grado".id [ delete: no action, update: no action ]
+}
+
+Ref fk_usuarios_id_anotacion {
+	usuarios.id < anotacion.autor_id [ delete: no action, update: no action ]
+}
+
+Ref "fk_anotacion_version _id_versiones" {
+	anotacion."version _id" > versiones.id [ delete: no action, update: no action ]
+}
+
+Ref fk_anotacion_nota_observacion_nota {
+	anotacion.nota_observacion > nota_comentario.id [ delete: no action, update: no action ]
+}
+
+Ref fk_anotacion_nota_correccion_nota {
+	anotacion.nota_correccion > nota_comentario.id [ delete: no action, update: no action ]
+}
