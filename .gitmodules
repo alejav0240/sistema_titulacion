@@ -1,6 +1,8 @@
 [submodule "sistema_titulacion_backend"]
 	path = sistema_titulacion_backend
 	url = git@github.com:alejav0240/sistema_titulacion_backend.git
+	branch = main
 [submodule "sistema_titulacion_frontend"]
 	path = sistema_titulacion_frontend
 	url = git@github.com:alejav0240/sistema_titulacion_frontend.git
+	branch = main
